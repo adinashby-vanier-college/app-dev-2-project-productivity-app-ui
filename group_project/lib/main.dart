@@ -1,36 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(const MyApp());
+import 'package:flutter/material.dart';
+import 'pages/welcome_page.dart';
+import 'pages/interests_page.dart';
+import 'pages/login_page.dart';
+
+void main() {
+  runApp(TaskManagerApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
+class TaskManagerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Firebase Test App',
-      home: const HomeScreen(),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Firebase Test'),
-      ),
-      body: const Center(
-        child: Text('Firebase is connected!'),
-      ),
+      title: 'Task Manager',
+      debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => WelcomePage(),
+        '/interests': (context) => InterestsPage(),
+        '/login': (context) => LoginPage(),
+      },
     );
   }
 }
