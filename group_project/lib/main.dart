@@ -7,9 +7,10 @@ import 'pages/welcome_page.dart';
 import 'pages/interests_page.dart';
 import 'pages/login_page.dart';
 import 'pages/signup_page.dart';
+import 'pages/HomePage.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Required before Firebase init
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(); // Initialize Firebase
   runApp(TaskManagerApp());
 }
@@ -27,6 +28,7 @@ class TaskManagerApp extends StatelessWidget {
         '/interests': (context) => InterestsPage(),
         '/login': (context) => LoginPage(),
         '/signup': (context) => SignupPage(),
+        '/home': (context) => HomePage(),
       },
     );
   }

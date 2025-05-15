@@ -1,105 +1,157 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignupPage extends StatefulWidget {
   @override
-  _SignupPageState createState() => _SignupPageState();
+  State<SignupPage> createState() => _SignupPageState();
 }
 
 class _SignupPageState extends State<SignupPage> {
-  String message = 'Connecting to Firebase...';
-  String? documentId; // For delete
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    _createTestDocument();
-  }
+  bool _agreed = false;
 
-  // 🔹 CREATE
-  Future<void> _createTestDocument() async {
-    try {
-      final docRef = await FirebaseFirestore.instance.collection('testSignup').add({
-        'status': 'Signup page opened',
-        'timestamp': Timestamp.now(),
-      });
-      setState(() {
-        message = ' Document added.';
-        documentId = docRef.id;
-      });
-      _readLastDocument();
-    } catch (e) {
-      setState(() {
-        message = ' Firestore write failed.';
-      });
+  Future<void> _registerUser() async {
+    if (!_agreed) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please accept Terms and Conditions')),
+      );
+      return;
     }
-  }
 
-  // 🔹 READ
-  Future<void> _readLastDocument() async {
+    if (_passwordController.text != _confirmController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
     try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('testSignup')
-          .orderBy('timestamp', descending: true)
-          .limit(1)
-          .get();
+      final UserCredential userCredential =
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
 
-      if (snapshot.docs.isNotEmpty) {
-        final data = snapshot.docs.first.data();
-        setState(() {
-          message += '\n\n Last Document:\n${data['status']}';
+      final user = userCredential.user;
+
+      if (user != null) {
+        // Send verification email
+        await user.sendEmailVerification();
+
+        // Save user info in Firestore
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'name': _nameController.text.trim(),
+          'email': _emailController.text.trim(),
+          'createdAt': Timestamp.now(),
         });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Verification email sent! Please check your inbox before logging in.',
+            ),
+          ),
+        );
+
+        // Navigate back to login or verification screen (you choose)
+        Navigator.pushNamed(context, '/login');
       }
     } catch (e) {
-      setState(() {
-        message += '\n Read failed.';
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Signup failed: $e')),
+      );
     }
   }
 
-  // 🔹 DELETE
-  Future<void> _deleteTestDocument() async {
-    if (documentId == null) return;
-
-    try {
-      await FirebaseFirestore.instance.collection('testSignup').doc(documentId).delete();
-      setState(() {
-        message += '\n Document deleted.';
-      });
-    } catch (e) {
-      setState(() {
-        message += '\n Delete failed.';
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Sign Up')),
-      body: Center(
-        child: Padding(
-          padding: EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Signup Page Placeholder',
-                style: TextStyle(fontSize: 20),
+      appBar: AppBar(title: Text("Sign up")),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Sign up", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+            SizedBox(height: 5),
+            Text("Create an account to get started", style: TextStyle(fontSize: 16, color: Colors.grey)),
+            SizedBox(height: 30),
+
+            _buildTextField(_nameController, "Name", Icons.person),
+            SizedBox(height: 16),
+            _buildTextField(_emailController, "Email Address", Icons.email),
+            SizedBox(height: 16),
+            _buildTextField(_passwordController, "Create a password", Icons.lock, isPassword: true),
+            SizedBox(height: 16),
+            _buildTextField(_confirmController, "Confirm password", Icons.lock_outline, isPassword: true),
+            SizedBox(height: 16),
+
+            Row(
+              children: [
+                Checkbox(
+                  value: _agreed,
+                  onChanged: (val) {
+                    setState(() {
+                      _agreed = val!;
+                    });
+                  },
+                ),
+                Expanded(
+                  child: Wrap(
+                    children: [
+                      Text("I’ve read and agree with the "),
+                      Text(
+                        "Terms and Conditions",
+                        style: TextStyle(color: Colors.blue),
+                      ),
+                      Text(" and the "),
+                      Text(
+                        "Privacy Policy.",
+                        style: TextStyle(color: Colors.blue),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+            SizedBox(height: 20),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _registerUser,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF1E88E5),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text("Sign Up"),
               ),
-              SizedBox(height: 20),
-              Text(
-                message,
-                style: TextStyle(fontSize: 16, color: Colors.green),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _deleteTestDocument,
-                child: Text('Delete Last Document'),
-              ),
-            ],
-          ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, {bool isPassword = false}) {
+    return TextField(
+      controller: controller,
+      obscureText: isPassword,
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon),
+        labelText: label,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
         ),
       ),
     );
