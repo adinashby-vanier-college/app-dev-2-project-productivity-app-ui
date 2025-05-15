@@ -56,6 +56,7 @@ class _SignupPageState extends State<SignupPage> {
           await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
             'name': _nameController.text.trim(),
             'email': _emailController.text.trim(),
+            'age': 18, // ✅ Add default age value
             'createdAt': Timestamp.now(),
           });
 

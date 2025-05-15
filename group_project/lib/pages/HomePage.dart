@@ -9,8 +9,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final user = FirebaseAuth.instance.currentUser;
   File? _profileImage;
+  User? _user;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentUser();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    await FirebaseAuth.instance.currentUser?.reload(); // ✅ reload the user
+    setState(() {
+      _user = FirebaseAuth.instance.currentUser; // get updated user info
+    });
+  }
 
   Future<void> _pickImage() async {
     final pickedFile =
@@ -89,44 +102,46 @@ class _HomePageState extends State<HomePage> {
                       child: CircleAvatar(
                         radius: 14,
                         backgroundColor: Colors.blue,
-                        child:
-                        Icon(Icons.edit, size: 16, color: Colors.white),
+                        child: Icon(Icons.edit, size: 16, color: Colors.white),
                       ),
                     ),
                   ],
                 ),
                 SizedBox(height: 10),
-                Text(user?.displayName ?? 'Name not available',
-                    style:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                Text(user?.email ?? 'No email',
-                    style: TextStyle(color: Colors.grey)),
+                Text(
+                  _user?.displayName ?? 'Name not available',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  _user?.email ?? 'No email',
+                  style: TextStyle(color: Colors.grey),
+                ),
               ],
             ),
           ),
 
-          SizedBox(height: 30),
+          SizedBox(height: 20),
 
           // Navigation
           Expanded(
             child: ListView(
+              padding: EdgeInsets.symmetric(horizontal: 16),
               children: [
                 _buildOption("About Me", Icons.info, '/about'),
                 _buildOption("Notifications", Icons.notifications, '/notifications'),
                 _buildOption("Contact Us", Icons.mail, '/contact'),
                 _buildOption("Privacy & Security", Icons.lock, '/privacy'),
-                Padding(
-                  padding: const EdgeInsets.all(50),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => _showLogoutDialog(context),
-                      child: Text("Log Out", style: TextStyle(color: Colors.white, fontSize: 16)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF3F51B5),
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => _showLogoutDialog(context),
+                    child: Text("Log Out", style: TextStyle(color: Colors.white, fontSize: 16)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF3F51B5),
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                   ),
@@ -134,9 +149,6 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-
-          // Logout button
-
         ],
       ),
     );

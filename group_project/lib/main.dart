@@ -36,7 +36,7 @@ class TaskManagerApp extends StatelessWidget {
         '/home': (context) => HomePage(),
         '/about': (context) => AboutPage(),
         '/notifications': (context) => NotificationsPage(),
-        '/contact': (context) => ContactPage(),
+        '/contact': (context) => ContactUsPage(),
         '/privacy': (context) => PrivacyPage(),
       },
     );

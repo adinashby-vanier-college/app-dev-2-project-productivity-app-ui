@@ -27,14 +27,17 @@ class _AboutPageState extends State<AboutPage> {
           .collection('users')
           .doc(user!.uid)
           .get();
+
       if (doc.exists) {
+        final data = doc.data();
         setState(() {
-          _nameController.text = doc['name'] ?? '';
-          _ageController.text = doc['age']?.toString() ?? '';
+          _nameController.text = data?['name'] ?? '';
+          _ageController.text = data?['age']?.toString() ?? ''; // ✅ Safe null check
         });
       }
     }
   }
+
 
   Future<void> _saveNameAndAge() async {
     final age = int.tryParse(_ageController.text);
