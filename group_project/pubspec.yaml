@@ -37,6 +37,9 @@ dependencies:
   firebase_core: ^3.13.0
   cloud_firestore: ^5.6.7
   firebase_auth: ^5.5.3
+  image_picker: ^1.1.2
+  url_launcher: ^6.3.1
+  font_awesome_flutter: ^10.8.0
 
 dev_dependencies:
   flutter_test:
@@ -64,6 +67,9 @@ flutter:
   assets:
      - assets/image/welcome.png
      - assets/image/login.png
+     - assets/icons/x_icon.png
+     - assets/icons/facebook_icon.png
+     - assets/icons/apple_icon.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

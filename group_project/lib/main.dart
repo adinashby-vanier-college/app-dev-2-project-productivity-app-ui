@@ -8,6 +8,11 @@ import 'pages/interests_page.dart';
 import 'pages/login_page.dart';
 import 'pages/signup_page.dart';
 import 'pages/HomePage.dart';
+import 'pages/AboutPage.dart';
+import 'pages/NotificationsPage.dart';
+import 'pages/ContactPage.dart';
+import 'pages/PrivacyPage.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +34,10 @@ class TaskManagerApp extends StatelessWidget {
         '/login': (context) => LoginPage(),
         '/signup': (context) => SignupPage(),
         '/home': (context) => HomePage(),
+        '/about': (context) => AboutPage(),
+        '/notifications': (context) => NotificationsPage(),
+        '/contact': (context) => ContactPage(),
+        '/privacy': (context) => PrivacyPage(),
       },
     );
   }

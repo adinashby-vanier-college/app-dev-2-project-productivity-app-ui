@@ -40,26 +40,34 @@ class _SignupPageState extends State<SignupPage> {
       final user = userCredential.user;
 
       if (user != null) {
-        // Send verification email
-        await user.sendEmailVerification();
+        final user = userCredential.user;
 
-        // Save user info in Firestore
-        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-          'name': _nameController.text.trim(),
-          'email': _emailController.text.trim(),
-          'createdAt': Timestamp.now(),
-        });
+        if (user != null) {
+          // ✅ Set the display name
+          await user.updateDisplayName(_nameController.text.trim());
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Verification email sent! Please check your inbox before logging in.',
+          // ✅ Optional: refresh the user to apply updates immediately
+          await user.reload();
+
+          // ✅ Send verification email
+          await user.sendEmailVerification();
+
+          // ✅ Save to Firestore
+          await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+            'name': _nameController.text.trim(),
+            'email': _emailController.text.trim(),
+            'createdAt': Timestamp.now(),
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Verification email sent. Please check your inbox.'),
             ),
-          ),
-        );
+          );
 
-        // Navigate back to login or verification screen (you choose)
-        Navigator.pushNamed(context, '/login');
+          Navigator.pushReplacementNamed(context, '/login');
+        }
+
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
